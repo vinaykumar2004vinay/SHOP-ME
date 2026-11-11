@@ -1,0 +1,12 @@
+{
+  "name": "shopease-frontend",
+  "version": "1.0.0",
+  "description": "ShopEase E-Commerce Frontend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["ecommerce", "frontend"],
+  "author": "ShopEase Team"
+}

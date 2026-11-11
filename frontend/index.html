@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShopEase — Premium Online Shopping</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- Navbar -->
+<div id="navbar"></div>
+
+<!-- Cart Sidebar -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h3>Shopping Cart</h3>
+    <button class="cart-close-btn" onclick="closeCart()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="cart-body" id="cartBody"></div>
+  <div class="cart-footer" id="cartFooter" style="display:none"></div>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <span class="hero-eyebrow">New Season Arrivals</span>
+    <h1>Shop the <em>Latest Trends</em><br>at the Best Prices</h1>
+    <p>Thousands of products across electronics, fashion, home goods and more — delivered to your door.</p>
+    <div class="hero-actions">
+      <a href="#products" class="btn btn-primary btn-lg">Shop Now</a>
+      <a href="/pages/auth.html?tab=register" class="btn btn-outline btn-lg" id="heroRegBtn" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.4);color:#fff">Create Account</a>
+    </div>
+  </div>
+</section>
+
+<!-- Feature Strip -->
+<div class="feature-strip">
+  <div class="feature-strip-inner">
+    <div class="feature-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      <div class="feature-item-text">
+        <strong>Free Delivery</strong>
+        <span>On orders above ₹499</span>
+      </div>
+    </div>
+    <div class="feature-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+      <div class="feature-item-text">
+        <strong>Easy Returns</strong>
+        <span>30-day hassle-free returns</span>
+      </div>
+    </div>
+    <div class="feature-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      <div class="feature-item-text">
+        <strong>Secure Payments</strong>
+        <span>Multiple payment options</span>
+      </div>
+    </div>
+    <div class="feature-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.7A2 2 0 012 .99h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+      <div class="feature-item-text">
+        <strong>24/7 Support</strong>
+        <span>We're here to help</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Categories + Products -->
+<div class="container">
+
+  <!-- Category filter -->
+  <div class="section" id="categorySection">
+    <div class="navbar-cats" style="border-radius:8px;margin-bottom:0">
+      <div class="navbar-cats-inner" id="categoryBar">
+        <div class="spinner" style="margin:0.5rem auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products grid -->
+  <div class="section" id="products">
+    <div class="section-header">
+      <h2 id="sectionTitle">All Products</h2>
+      <span id="productCount" style="font-size:0.85rem;color:var(--text-400)"></span>
+    </div>
+    <div class="products-grid" id="productsGrid">
+      <div class="loading-center" style="grid-column:1/-1">
+        <div class="spinner"></div>
+        <p>Loading products...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick-view Modal -->
+<div class="modal-overlay" id="quickViewModal" style="display:none">
+  <div class="modal" style="max-width:720px">
+    <div class="modal-header">
+      <h3 id="qvTitle">Product Details</h3>
+      <button class="modal-close" onclick="closeModal('quickViewModal')">&times;</button>
+    </div>
+    <div class="modal-body" id="qvBody"></div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-main">
+    <div>
+      <div class="footer-brand">Shop<span>Ease</span></div>
+      <p class="footer-desc">Your trusted online shopping destination. Quality products, fast delivery, easy returns guaranteed.</p>
+    </div>
+    <div>
+      <h5>Quick Links</h5>
+      <a href="/index.html">Home</a>
+      <a href="/pages/orders.html">My Orders</a>
+      <a href="/pages/profile.html">My Account</a>
+    </div>
+    <div>
+      <h5>Categories</h5>
+      <div id="footerCats"></div>
+    </div>
+    <div>
+      <h5>Support</h5>
+      <a href="#">Help Center</a>
+      <a href="#">Return Policy</a>
+      <a href="#">Track Order</a>
+      <a href="#">Contact Us</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 ShopEase. All rights reserved.</span>
+    <span>Built with Spring Boot &amp; Vanilla JS</span>
+  </div>
+</footer>
+
+<script src="/js/utils.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/navbar.js"></script>
+<script src="/js/cart.js"></script>
+<script>
+  let allCategories = [];
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const user = getUser();
+    if (user) {
+      const btn = document.getElementById('heroRegBtn');
+      if (btn) { btn.textContent = 'My Account'; btn.href = '/pages/profile.html'; }
+    }
+
+    const params   = new URLSearchParams(window.location.search);
+    const keyword  = params.get('search') || '';
+
+    await Promise.all([loadCategories(), loadProducts(keyword)]);
+
+    if (keyword) {
+      document.getElementById('sectionTitle').textContent = `Results for "${keyword}"`;
+    }
+  });
+
+  async function loadCategories() {
+    try {
+      const res = await CategoryAPI.getAll();
+      allCategories = res.data || [];
+      renderCategoryBar(allCategories);
+      renderFooterCats(allCategories);
+    } catch {
+      document.getElementById('categoryBar').innerHTML = '';
+    }
+  }
+
+  function renderCategoryBar(cats) {
+    const bar = document.getElementById('categoryBar');
+    if (!bar) return;
+    bar.innerHTML = `
+      <div class="cat-nav-item active" id="cat-all" onclick="filterCat(null, this)">All Products</div>
+      ${cats.map(c => `
+        <div class="cat-nav-item" id="cat-${c.id}" onclick="filterCat(${c.id}, '${c.name}', this)">${c.name}</div>
+      `).join('')}
+    `;
+  }
+
+  async function loadProducts(keyword = '') {
+    const grid = document.getElementById('productsGrid');
+    grid.innerHTML = `<div class="loading-center" style="grid-column:1/-1"><div class="spinner"></div></div>`;
+    try {
+      let res = keyword ? await ProductAPI.search(keyword) : await ProductAPI.getAll();
+      renderProducts(res.data || []);
+    } catch {
+      grid.innerHTML = `
+        <div style="grid-column:1/-1" class="loading-center">
+          <p style="color:var(--danger)">Could not load products. Make sure the backend is running on port 8080.</p>
+        </div>`;
+    }
+  }
+
+  async function filterCat(catId, nameOrEl, elOrUndefined) {
+    // Handle both filterCat(null, this) and filterCat(id, 'name', this)
+    let name = typeof nameOrEl === 'string' ? nameOrEl : 'All Products';
+    let el   = elOrUndefined || (typeof nameOrEl === 'object' ? nameOrEl : null);
+
+    document.querySelectorAll('.cat-nav-item').forEach(c => c.classList.remove('active'));
+    if (el) el.classList.add('active');
+
+    document.getElementById('sectionTitle').textContent = catId ? name : 'All Products';
+    const grid = document.getElementById('productsGrid');
+    grid.innerHTML = `<div class="loading-center" style="grid-column:1/-1"><div class="spinner"></div></div>`;
+
+    try {
+      const res = catId ? await ProductAPI.getByCategory(catId) : await ProductAPI.getAll();
+      renderProducts(res.data || []);
+    } catch { showToast('Filter failed', 'error'); }
+  }
+
+  function renderProducts(products) {
+    const grid    = document.getElementById('productsGrid');
+    const countEl = document.getElementById('productCount');
+    if (countEl) countEl.textContent = `${products.length} item${products.length !== 1 ? 's' : ''}`;
+
+    if (!products.length) {
+      grid.innerHTML = `
+        <div style="grid-column:1/-1" class="loading-center">
+          <img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?w=300&q=60" style="width:160px;border-radius:8px;opacity:0.4;margin-bottom:1rem" alt="" />
+          <h3 style="color:var(--text-700)">No products found</h3>
+          <p>Try a different search or category</p>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = products.map(p => `
+      <div class="product-card" onclick="openQuickView(${p.id})">
+        <div class="product-card-img-wrap">
+          <img
+            class="product-card-img"
+            src="${productImage(p.imageUrl, p.name)}"
+            alt="${p.name}"
+            loading="lazy"
+            onerror="this.src='https://placehold.co/400x210/e2e8f0/94a3b8?text=No+Image'"
+          />
+          <div class="product-card-overlay">
+            <button onclick="event.stopPropagation(); openQuickView(${p.id})">Quick View</button>
+          </div>
+        </div>
+        <div class="product-card-body">
+          <div class="product-cat-tag">${p.category?.name || ''}</div>
+          <div class="product-name">${p.name}</div>
+          <div class="product-price-row">
+            <span class="product-price">${formatPrice(p.price)}</span>
+            <span class="product-stock-tag ${p.quantity <= 0 ? 'no-stock' : p.quantity <= 5 ? 'low-stock' : 'in-stock'}">
+              ${p.quantity <= 0 ? 'Out of stock' : p.quantity <= 5 ? `Only ${p.quantity} left` : 'In stock'}
+            </span>
+          </div>
+          <button
+            class="product-add-btn"
+            onclick="event.stopPropagation(); addToCart(${p.id})"
+            ${p.quantity <= 0 ? 'disabled' : ''}
+          >Add to Cart</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function openQuickView(productId) {
+    openModal('quickViewModal');
+    document.getElementById('qvBody').innerHTML =
+      `<div class="loading-center"><div class="spinner"></div></div>`;
+    try {
+      const res = await ProductAPI.getById(productId);
+      const p   = res.data;
+      document.getElementById('qvTitle').textContent = p.name;
+      document.getElementById('qvBody').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+          <div style="border-radius:var(--radius);overflow:hidden;background:#f1f5f9">
+            <img
+              src="${productImage(p.imageUrl, p.name)}"
+              alt="${p.name}"
+              style="width:100%;height:300px;object-fit:cover"
+              onerror="this.src='https://placehold.co/400x300/e2e8f0/94a3b8?text=No+Image'"
+            />
+          </div>
+          <div>
+            <span class="badge badge-primary" style="margin-bottom:0.6rem;display:inline-block">${p.category?.name || 'General'}</span>
+            <h3 style="font-size:1.1rem;margin-bottom:0.6rem">${p.name}</h3>
+            <p style="font-size:0.875rem;line-height:1.7;margin-bottom:1rem">${p.description || 'No description available.'}</p>
+            <div style="font-size:1.6rem;font-weight:800;color:var(--text-900);margin-bottom:0.4rem">${formatPrice(p.price)}</div>
+            <span class="product-stock-tag ${p.quantity <= 0 ? 'no-stock' : p.quantity <= 5 ? 'low-stock' : 'in-stock'}" style="margin-bottom:1.2rem;display:inline-block">
+              ${p.quantity <= 0 ? 'Out of stock' : `${p.quantity} in stock`}
+            </span>
+            <div style="display:flex;align-items:center;gap:0.8rem;margin-top:1rem">
+              <div style="display:flex;align-items:center;gap:0.5rem">
+                <label style="font-size:0.8rem;font-weight:600;color:var(--text-500)">Qty</label>
+                <input type="number" id="qvQty" value="1" min="1" max="${p.quantity}"
+                  class="form-control" style="width:72px" />
+              </div>
+              <button
+                class="btn btn-primary btn-lg"
+                style="flex:1"
+                onclick="addToCart(${p.id}, parseInt(document.getElementById('qvQty').value)||1); closeModal('quickViewModal')"
+                ${p.quantity <= 0 ? 'disabled' : ''}>
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    } catch {
+      document.getElementById('qvBody').innerHTML = `<p style="color:var(--danger);padding:1rem">Failed to load product.</p>`;
+    }
+  }
+
+  function renderFooterCats(cats) {
+    const el = document.getElementById('footerCats');
+    if (!el) return;
+    el.innerHTML = cats.slice(0, 5).map(c =>
+      `<a href="#" onclick="filterCat(${c.id},'${c.name}',document.getElementById('cat-${c.id}'));document.getElementById('products').scrollIntoView({behavior:'smooth'})">${c.name}</a>`
+    ).join('');
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Orders — ShopEase</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div id="navbar"></div>
+
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h3>Shopping Cart</h3>
+    <button class="cart-close-btn" onclick="closeCart()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="cart-body" id="cartBody"></div>
+  <div class="cart-footer" id="cartFooter" style="display:none"></div>
+</div>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <h1>My Orders</h1>
+    <p>Track and manage all your orders</p>
+  </div>
+</div>
+
+<div class="container" style="padding-top:1.5rem;padding-bottom:3rem">
+
+  <!-- Filter tabs -->
+  <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1.4rem;border-bottom:1px solid var(--border);padding-bottom:0.75rem" id="filterRow">
+    <button class="btn btn-primary btn-sm"  onclick="applyFilter('ALL',this)">All</button>
+    <button class="btn btn-outline btn-sm"  onclick="applyFilter('PENDING',this)">Pending</button>
+    <button class="btn btn-outline btn-sm"  onclick="applyFilter('PROCESSING',this)">Processing</button>
+    <button class="btn btn-outline btn-sm"  onclick="applyFilter('SHIPPED',this)">Shipped</button>
+    <button class="btn btn-outline btn-sm"  onclick="applyFilter('DELIVERED',this)">Delivered</button>
+    <button class="btn btn-outline btn-sm"  onclick="applyFilter('CANCELLED',this)">Cancelled</button>
+  </div>
+
+  <div id="ordersWrap">
+    <div class="loading-center"><div class="spinner"></div><p>Loading orders...</p></div>
+  </div>
+</div>
+
+<!-- Order detail modal -->
+<div class="modal-overlay" id="detailModal" style="display:none">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-header">
+      <h3 id="detailTitle">Order Details</h3>
+      <button class="modal-close" onclick="closeModal('detailModal')">&times;</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- Cancel modal -->
+<div class="modal-overlay" id="cancelModal" style="display:none">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <h3>Cancel Order</h3>
+      <button class="modal-close" onclick="closeModal('cancelModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:1rem;font-size:0.9rem;color:var(--text-500)">Please provide a reason for cancellation. This helps us improve our service.</p>
+      <div class="form-group">
+        <label>Reason</label>
+        <textarea class="form-control" id="cancelReason" rows="3"
+          placeholder="e.g., Changed my mind, Found a better deal..."></textarea>
+      </div>
+      <input type="hidden" id="cancelId" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('cancelModal')">Go Back</button>
+      <button class="btn btn-danger" id="cancelConfirmBtn" onclick="confirmCancel()">Confirm Cancellation</button>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-bottom" style="max-width:none;margin:0"><span>© 2026 ShopEase</span></div>
+</footer>
+
+<script src="/js/utils.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/navbar.js"></script>
+<script src="/js/cart.js"></script>
+<script>
+  let allOrders = [];
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    requireAuth();
+    await loadOrders();
+  });
+
+  async function loadOrders() {
+    const u = getUser();
+    const wrap = document.getElementById('ordersWrap');
+    try {
+      const res = await OrderAPI.getUserOrders(u.id);
+      allOrders = res.data || [];
+      renderOrders(allOrders);
+    } catch {
+      wrap.innerHTML = `<div class="loading-center"><p>Failed to load orders.</p></div>`;
+    }
+  }
+
+  function applyFilter(status, btn) {
+    document.querySelectorAll('#filterRow .btn').forEach(b => {
+      b.className = b === btn ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm';
+    });
+    renderOrders(status === 'ALL' ? allOrders : allOrders.filter(o => o.status === status));
+  }
+
+  function renderOrders(orders) {
+    const wrap = document.getElementById('ordersWrap');
+    if (!orders.length) {
+      wrap.innerHTML = `
+        <div class="loading-center">
+          <img src="https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=260&q=60"
+            style="width:140px;border-radius:8px;opacity:0.35;margin-bottom:1rem" alt="" />
+          <h3 style="color:var(--text-700)">No orders found</h3>
+          <p><a href="/index.html" style="color:var(--primary)">Browse products</a></p>
+        </div>`;
+      return;
+    }
+
+    wrap.innerHTML = orders.map(o => `
+      <div class="card" style="margin-bottom:1rem;overflow:hidden">
+        <!-- Header row -->
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:0.9rem 1.3rem;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap;gap:0.5rem">
+          <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+            <div>
+              <div style="font-size:0.75rem;font-weight:600;color:var(--text-400);text-transform:uppercase;letter-spacing:0.05em">Order</div>
+              <div style="font-weight:700;color:var(--text-900)">#${o.id}</div>
+            </div>
+            <div>
+              <div style="font-size:0.75rem;font-weight:600;color:var(--text-400);text-transform:uppercase;letter-spacing:0.05em">Placed On</div>
+              <div style="font-size:0.875rem;color:var(--text-700)">${formatDate(o.placedAt)}</div>
+            </div>
+            <div>
+              <div style="font-size:0.75rem;font-weight:600;color:var(--text-400);text-transform:uppercase;letter-spacing:0.05em">Total</div>
+              <div style="font-weight:700;color:var(--text-900)">${formatPrice(o.totalAmount)}</div>
+            </div>
+          </div>
+          ${statusBadge(o.status)}
+        </div>
+
+        <!-- Items preview -->
+        <div style="padding:0.9rem 1.3rem;display:flex;gap:0.5rem;flex-wrap:wrap;border-bottom:1px solid var(--border)">
+          ${(o.items || []).map(item => `
+            <div style="display:flex;align-items:center;gap:0.5rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:0.35rem 0.75rem;font-size:0.8rem">
+              <span style="color:var(--text-700);font-weight:500">${item.product?.name || 'Product'}</span>
+              <span style="color:var(--text-400)">× ${item.quantity}</span>
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- Actions -->
+        <div style="padding:0.75rem 1.3rem;display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="viewDetail(${o.id})">View Details</button>
+          ${(o.status === 'PENDING' || o.status === 'PROCESSING') ? `
+            <button class="btn btn-sm" style="color:var(--danger);border:1.5px solid var(--danger)" onclick="openCancel(${o.id})">
+              Cancel Order
+            </button>` : ''}
+          <span style="margin-left:auto;font-size:0.78rem;color:var(--text-400)">${o.paymentMethod || ''} &middot; ${o.deliveryOption || ''}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function viewDetail(orderId) {
+    openModal('detailModal');
+    document.getElementById('detailTitle').textContent = `Order #${orderId}`;
+    document.getElementById('detailBody').innerHTML =
+      `<div class="loading-center"><div class="spinner"></div></div>`;
+    try {
+      const res   = await OrderAPI.getById(orderId);
+      const order = res.data;
+
+      const steps = ['PENDING','PROCESSING','SHIPPED','DELIVERED'];
+      const stepLabels = { PENDING:'Order Placed', PROCESSING:'Processing', SHIPPED:'Shipped', DELIVERED:'Delivered' };
+      const stepIcons  = {
+        PENDING:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+        PROCESSING: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>`,
+        SHIPPED:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
+        DELIVERED:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+      };
+
+      const currentIdx = order.status === 'CANCELLED' ? -1 : steps.indexOf(order.status);
+
+      const timelineHtml = order.status === 'CANCELLED'
+        ? `<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:var(--radius-sm);padding:1rem;color:var(--danger);font-size:0.875rem">
+             <strong>Order Cancelled</strong><br/>
+             ${order.cancellationReason ? `Reason: ${order.cancellationReason}` : ''}
+           </div>`
+        : `<div class="order-timeline">
+             ${steps.map((step, i) => {
+               const done    = i < currentIdx;
+               const current = i === currentIdx;
+               const isLast  = i === steps.length - 1;
+               return `
+                 <div class="timeline-item">
+                   <div class="timeline-left">
+                     <div class="timeline-dot ${done ? 'done' : current ? 'current' : ''}">
+                       ${stepIcons[step]}
+                     </div>
+                     ${!isLast ? `<div class="timeline-line ${done ? 'done' : ''}"></div>` : ''}
+                   </div>
+                   <div class="timeline-body">
+                     <strong>${stepLabels[step]}</strong>
+                     <span>${done ? 'Completed' : current ? 'In progress' : 'Upcoming'}</span>
+                   </div>
+                 </div>`;
+             }).join('')}
+           </div>`;
+
+      document.getElementById('detailBody').innerHTML = `
+        <div style="margin-bottom:1.4rem">${timelineHtml}</div>
+
+        <h4 style="margin-bottom:0.75rem">Items</h4>
+        ${(order.items || []).map(item => `
+          <div style="display:flex;gap:0.9rem;align-items:center;padding:0.7rem;background:var(--bg);border-radius:var(--radius-sm);margin-bottom:0.5rem">
+            <img src="${productImage(item.product?.imageUrl, item.product?.name)}"
+              style="width:52px;height:52px;object-fit:cover;border-radius:6px;flex-shrink:0;border:1px solid var(--border)"
+              onerror="this.src='https://placehold.co/52x52/e2e8f0/94a3b8'" />
+            <div style="flex:1">
+              <div style="font-weight:600;font-size:0.875rem">${item.product?.name}</div>
+              <div style="font-size:0.78rem;color:var(--text-400)">Qty: ${item.quantity} × ${formatPrice(item.priceAtPurchase)}</div>
+            </div>
+            <strong style="font-size:0.875rem">${formatPrice(item.priceAtPurchase * item.quantity)}</strong>
+          </div>
+        `).join('')}
+
+        <div style="border-top:1px solid var(--border);margin-top:1rem;padding-top:1rem">
+          <div class="summary-line"><span>Payment</span><strong>${order.paymentMethod}</strong></div>
+          <div class="summary-line"><span>Delivery</span><strong>${order.deliveryOption}</strong></div>
+          <div class="summary-line"><span>Ship To</span><strong style="max-width:55%;text-align:right">${order.shippingAddress}</strong></div>
+          <div class="summary-line total"><span>Total</span><span>${formatPrice(order.totalAmount)}</span></div>
+        </div>
+      `;
+    } catch {
+      document.getElementById('detailBody').innerHTML = `<p style="color:var(--danger)">Failed to load order details.</p>`;
+    }
+  }
+
+  function openCancel(id) {
+    document.getElementById('cancelId').value = id;
+    document.getElementById('cancelReason').value = '';
+    openModal('cancelModal');
+  }
+
+  async function confirmCancel() {
+    const btn    = document.getElementById('cancelConfirmBtn');
+    const id     = document.getElementById('cancelId').value;
+    const reason = document.getElementById('cancelReason').value.trim();
+    if (!reason) { showToast('Please provide a reason for cancellation', 'warning'); return; }
+    setLoading(btn, true, 'Cancelling...');
+    try {
+      await OrderAPI.cancel(id, reason, false);
+      closeModal('cancelModal');
+      showToast('Order cancelled. Refund will be processed within 5–7 days.', 'success');
+      await loadOrders();
+    } catch (ex) {
+      showToast(ex.message || 'Could not cancel order', 'error');
+      setLoading(btn, false);
+    }
+  }
+</script>
+
+</body>
+</html>

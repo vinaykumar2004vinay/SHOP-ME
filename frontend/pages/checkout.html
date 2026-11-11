@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — ShopEase</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div id="navbar"></div>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <h1>Checkout</h1>
+    <p>Complete your order</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="checkout-layout">
+
+    <!-- Left: Steps -->
+    <div>
+
+      <!-- Step 1: Shipping address -->
+      <div class="checkout-step-card">
+        <div class="checkout-step-header">
+          <div class="checkout-step-num">1</div>
+          <h3>Delivery Address</h3>
+        </div>
+        <div class="checkout-step-body">
+          <div class="form-group">
+            <label>Full delivery address</label>
+            <textarea class="form-control" id="coAddress" rows="3"
+              placeholder="Flat / House No., Street, Locality, City, State, PIN Code" required></textarea>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="useProfileAddress()">Use saved address</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Delivery option -->
+      <div class="checkout-step-card">
+        <div class="checkout-step-header">
+          <div class="checkout-step-num">2</div>
+          <h3>Delivery Option</h3>
+        </div>
+        <div class="checkout-step-body">
+          <label class="option-card active" data-value="STANDARD" onclick="selectDelivery('STANDARD',this)">
+            <input type="radio" name="delivery" value="STANDARD" checked />
+            <div class="option-card-content">
+              <strong>Standard Delivery</strong>
+              <span>5–7 business days</span>
+            </div>
+            <span class="option-card-price" style="color:var(--success)">Free</span>
+          </label>
+          <label class="option-card" data-value="EXPRESS" onclick="selectDelivery('EXPRESS',this)">
+            <input type="radio" name="delivery" value="EXPRESS" />
+            <div class="option-card-content">
+              <strong>Express Delivery</strong>
+              <span>2–3 business days</span>
+            </div>
+            <span class="option-card-price">₹99</span>
+          </label>
+          <label class="option-card" data-value="OVERNIGHT" onclick="selectDelivery('OVERNIGHT',this)">
+            <input type="radio" name="delivery" value="OVERNIGHT" />
+            <div class="option-card-content">
+              <strong>Overnight Delivery</strong>
+              <span>Next business day</span>
+            </div>
+            <span class="option-card-price">₹249</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Step 3: Payment -->
+      <div class="checkout-step-card">
+        <div class="checkout-step-header">
+          <div class="checkout-step-num">3</div>
+          <h3>Payment Method</h3>
+        </div>
+        <div class="checkout-step-body">
+          <div class="payment-grid">
+            <label class="option-card active" data-value="COD" onclick="selectPayment('COD',this)">
+              <input type="radio" name="payment" value="COD" checked />
+              <div class="option-card-content">
+                <strong>Cash on Delivery</strong>
+                <span>Pay when delivered</span>
+              </div>
+            </label>
+            <label class="option-card" data-value="UPI" onclick="selectPayment('UPI',this)">
+              <input type="radio" name="payment" value="UPI" />
+              <div class="option-card-content">
+                <strong>UPI</strong>
+                <span>GPay, PhonePe, Paytm</span>
+              </div>
+            </label>
+            <label class="option-card" data-value="CREDIT_CARD" onclick="selectPayment('CREDIT_CARD',this)">
+              <input type="radio" name="payment" value="CREDIT_CARD" />
+              <div class="option-card-content">
+                <strong>Credit Card</strong>
+                <span>Visa, Mastercard</span>
+              </div>
+            </label>
+            <label class="option-card" data-value="DEBIT_CARD" onclick="selectPayment('DEBIT_CARD',this)">
+              <input type="radio" name="payment" value="DEBIT_CARD" />
+              <div class="option-card-content">
+                <strong>Debit Card</strong>
+                <span>All major banks</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right: Order summary -->
+    <div>
+      <div class="order-summary-card">
+        <div class="order-summary-card-header">
+          <h3>Order Summary</h3>
+        </div>
+        <div class="order-summary-card-body">
+          <div id="summaryItems">
+            <div class="loading-center" style="padding:2rem"><div class="spinner"></div></div>
+          </div>
+          <div id="summaryTotals" style="margin-top:0.5rem;border-top:1px solid var(--border);padding-top:0.75rem"></div>
+          <div id="coErr" style="color:var(--danger);font-size:0.82rem;margin:0.6rem 0;display:none"></div>
+          <button class="btn btn-primary btn-full btn-lg" style="margin-top:0.8rem" id="placeBtn" onclick="placeOrder()">
+            Place Order
+          </button>
+          <a href="/index.html" class="btn btn-ghost btn-full" style="margin-top:0.4rem">Continue Shopping</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Success modal -->
+<div class="modal-overlay" id="successModal" style="display:none">
+  <div class="modal" style="max-width:440px;text-align:center">
+    <div class="modal-body" style="padding:2.5rem">
+      <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=260&q=70"
+        style="width:120px;height:80px;object-fit:cover;border-radius:8px;margin:0 auto 1.2rem;opacity:0.85" alt="" />
+      <h2 style="margin-bottom:0.5rem">Order Placed!</h2>
+      <p style="margin-bottom:1.5rem">Your order has been confirmed. A confirmation email has been sent to your inbox.</p>
+      <div id="successOrderInfo" style="font-weight:700;font-size:1rem;margin-bottom:1.8rem;color:var(--text-900)"></div>
+      <div style="display:flex;gap:0.8rem;justify-content:center;flex-wrap:wrap">
+        <a href="/pages/orders.html" class="btn btn-primary">View My Orders</a>
+        <a href="/index.html" class="btn btn-outline">Continue Shopping</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/navbar.js"></script>
+<script src="/js/cart.js"></script>
+<script>
+  const deliveryFees = { STANDARD: 0, EXPRESS: 99, OVERNIGHT: 249 };
+  let selectedDelivery = 'STANDARD';
+  let selectedPayment  = 'COD';
+  let cartSubtotal     = 0;
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    requireAuth();
+    const u = getUser();
+    document.getElementById('coAddress').value = u.shippingAddress || '';
+    await loadSummary(u.id);
+  });
+
+  async function loadSummary(uid) {
+    try {
+      const res  = await CartAPI.getCart(uid);
+      const cart = res.data;
+
+      if (!cart || !cart.items || !cart.items.length) {
+        document.getElementById('summaryItems').innerHTML =
+          `<p style="color:var(--text-400);text-align:center;padding:1rem">Your cart is empty.</p>`;
+        document.getElementById('placeBtn').disabled = true;
+        return;
+      }
+
+      cartSubtotal = 0;
+      document.getElementById('summaryItems').innerHTML = cart.items.map(item => {
+        const sub = item.product.price * item.quantity;
+        cartSubtotal += sub;
+        return `
+          <div class="summary-item">
+            <img
+              src="${productImage(item.product.imageUrl, item.product.name)}"
+              alt="${item.product.name}"
+              onerror="this.src='https://placehold.co/44x44/e2e8f0/94a3b8'"
+            />
+            <div style="flex:1;min-width:0">
+              <div class="summary-item-name">${item.product.name}</div>
+              <div class="summary-item-qty">Qty: ${item.quantity}</div>
+            </div>
+            <div class="summary-item-price">${formatPrice(sub)}</div>
+          </div>`;
+      }).join('');
+
+      renderTotals();
+    } catch (err) {
+      document.getElementById('summaryItems').innerHTML =
+        `<p style="color:var(--danger);padding:1rem">Could not load cart.</p>`;
+    }
+  }
+
+  function renderTotals() {
+    const fee   = deliveryFees[selectedDelivery] || 0;
+    const grand = cartSubtotal + fee;
+    document.getElementById('summaryTotals').innerHTML = `
+      <div class="summary-line"><span>Subtotal</span><span>${formatPrice(cartSubtotal)}</span></div>
+      <div class="summary-line"><span>Delivery</span><span>${fee === 0 ? '<span style="color:var(--success)">Free</span>' : formatPrice(fee)}</span></div>
+      <div class="summary-line total"><span>Total</span><span>${formatPrice(grand)}</span></div>
+    `;
+  }
+
+  function selectDelivery(val, el) {
+    selectedDelivery = val;
+    document.querySelectorAll('[data-value]').forEach(c => {
+      if (['STANDARD','EXPRESS','OVERNIGHT'].includes(c.dataset.value)) c.classList.remove('active');
+    });
+    el.classList.add('active');
+    renderTotals();
+  }
+
+  function selectPayment(val, el) {
+    selectedPayment = val;
+    document.querySelectorAll('[data-value]').forEach(c => {
+      if (['COD','UPI','CREDIT_CARD','DEBIT_CARD'].includes(c.dataset.value)) c.classList.remove('active');
+    });
+    el.classList.add('active');
+  }
+
+  function useProfileAddress() {
+    const u = getUser();
+    if (u && u.shippingAddress) {
+      document.getElementById('coAddress').value = u.shippingAddress;
+      showToast('Address filled from your profile', 'success');
+    } else {
+      showToast('No saved address found', 'warning');
+    }
+  }
+
+  async function placeOrder() {
+    const btn  = document.getElementById('placeBtn');
+    const err  = document.getElementById('coErr');
+    const addr = document.getElementById('coAddress').value.trim();
+    err.style.display = 'none';
+
+    if (!addr) {
+      err.textContent = 'Please enter a delivery address.';
+      err.style.display = 'block';
+      return;
+    }
+
+    const u = getUser();
+    setLoading(btn, true, 'Placing order...');
+    try {
+      const res   = await OrderAPI.checkout({
+        userId:         u.id,
+        shippingAddress: addr,
+        paymentMethod:   selectedPayment,
+        deliveryOption:  selectedDelivery
+      });
+      const order = res.data;
+      setCartBadge(0);
+      document.getElementById('successOrderInfo').textContent =
+        `Order #${order.id}  —  ${formatPrice(order.totalAmount)}`;
+      openModal('successModal');
+    } catch (ex) {
+      err.textContent = ex.message || 'Could not place order. Please try again.';
+      err.style.display = 'block';
+      setLoading(btn, false);
+    }
+  }
+</script>
+
+</body>
+</html>

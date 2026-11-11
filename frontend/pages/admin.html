@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — ShopEase</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div id="navbar"></div>
+
+<div class="admin-wrap">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-brand">ShopEase Admin</div>
+
+    <div class="admin-nav-section">Overview</div>
+    <div class="admin-nav-item active" onclick="showSection('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </div>
+
+    <div class="admin-nav-section">Catalog</div>
+    <div class="admin-nav-item" onclick="showSection('products',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      Products
+    </div>
+    <div class="admin-nav-item" onclick="showSection('categories',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      Categories
+    </div>
+
+    <div class="admin-nav-section">Commerce</div>
+    <div class="admin-nav-item" onclick="showSection('orders',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+      Orders
+    </div>
+    <div class="admin-nav-item" onclick="showSection('users',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      Users
+    </div>
+
+    <div style="padding:1.5rem 1.2rem;margin-top:auto">
+      <a href="/index.html" class="btn btn-outline btn-sm btn-full" style="color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.2)">
+        Back to Store
+      </a>
+    </div>
+  </aside>
+
+  <!-- Content -->
+  <main class="admin-content">
+
+    <!-- ── DASHBOARD ── -->
+    <section class="admin-section active" id="section-dashboard">
+      <h2 style="margin-bottom:1.5rem">Dashboard</h2>
+      <div class="stats-grid" id="statsGrid">
+        <div class="loading-center" style="grid-column:1/-1"><div class="spinner"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-body" style="border-bottom:1px solid var(--border)"><h3>Recent Orders</h3></div>
+        <div id="dashRecentOrders">
+          <div class="loading-center"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PRODUCTS ── -->
+    <section class="admin-section" id="section-products">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.4rem;flex-wrap:wrap;gap:1rem">
+        <h2>Products</h2>
+        <button class="btn btn-primary" onclick="openProductModal()">Add Product</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Image</th><th>Name</th><th>Category</th>
+                <th>Price</th><th>Stock</th><th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="productsTbody">
+              <tr><td colspan="7"><div class="loading-center"><div class="spinner"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CATEGORIES ── -->
+    <section class="admin-section" id="section-categories">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.4rem;flex-wrap:wrap;gap:1rem">
+        <h2>Categories</h2>
+        <button class="btn btn-primary" onclick="openCatModal()">Add Category</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Description</th><th>Actions</th></tr></thead>
+            <tbody id="catsTbody">
+              <tr><td colspan="3"><div class="loading-center"><div class="spinner"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ORDERS ── -->
+    <section class="admin-section" id="section-orders">
+      <h2 style="margin-bottom:1rem">Orders</h2>
+      <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1.2rem">
+        <button class="btn btn-primary btn-sm"  onclick="filterAdminOrders('ALL',this)">All</button>
+        <button class="btn btn-outline btn-sm" onclick="filterAdminOrders('PENDING',this)">Pending</button>
+        <button class="btn btn-outline btn-sm" onclick="filterAdminOrders('PROCESSING',this)">Processing</button>
+        <button class="btn btn-outline btn-sm" onclick="filterAdminOrders('SHIPPED',this)">Shipped</button>
+        <button class="btn btn-outline btn-sm" onclick="filterAdminOrders('DELIVERED',this)">Delivered</button>
+        <button class="btn btn-outline btn-sm" onclick="filterAdminOrders('CANCELLED',this)">Cancelled</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Customer</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="ordersTbody">
+              <tr><td colspan="7"><div class="loading-center"><div class="spinner"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── USERS ── -->
+    <section class="admin-section" id="section-users">
+      <h2 style="margin-bottom:1.4rem">Users</h2>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="usersTbody">
+              <tr><td colspan="7"><div class="loading-center"><div class="spinner"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Product modal -->
+<div class="modal-overlay" id="productModal" style="display:none">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header">
+      <h3 id="productModalTitle">Add Product</h3>
+      <button class="modal-close" onclick="closeModal('productModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="productForm" onsubmit="saveProduct(event)">
+        <input type="hidden" id="prodId" />
+        <div class="form-group">
+          <label>Product name</label>
+          <input type="text" class="form-control" id="prodName" required />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group">
+            <label>Price (₹)</label>
+            <input type="number" class="form-control" id="prodPrice" min="0.01" step="0.01" required />
+          </div>
+          <div class="form-group">
+            <label>Stock quantity</label>
+            <input type="number" class="form-control" id="prodQty" min="0" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select class="form-control" id="prodCat" required>
+            <option value="">Select category</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea class="form-control" id="prodDesc" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Image URL</label>
+          <input type="text" class="form-control" id="prodImg" placeholder="https://..." />
+        </div>
+        <div class="modal-footer" style="padding:0;border:none;margin-top:1.2rem">
+          <button type="button" class="btn btn-outline" onclick="closeModal('productModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveProdBtn">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Category modal -->
+<div class="modal-overlay" id="catModal" style="display:none">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <h3 id="catModalTitle">Add Category</h3>
+      <button class="modal-close" onclick="closeModal('catModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="catForm" onsubmit="saveCat(event)">
+        <input type="hidden" id="catId" />
+        <div class="form-group">
+          <label>Category name</label>
+          <input type="text" class="form-control" id="catName" required />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" class="form-control" id="catDesc" />
+        </div>
+        <div class="form-group">
+          <label>Icon (optional — short text or symbol)</label>
+          <input type="text" class="form-control" id="catIcon" maxlength="10" />
+        </div>
+        <div class="modal-footer" style="padding:0;border:none;margin-top:1.2rem">
+          <button type="button" class="btn btn-outline" onclick="closeModal('catModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveCatBtn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Status update modal -->
+<div class="modal-overlay" id="statusModal" style="display:none">
+  <div class="modal" style="max-width:360px">
+    <div class="modal-header">
+      <h3>Update Order Status</h3>
+      <button class="modal-close" onclick="closeModal('statusModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="statusOrderId" />
+      <div class="form-group">
+        <label>New status</label>
+        <select class="form-control" id="statusSelect">
+          <option value="PENDING">Pending</option>
+          <option value="PROCESSING">Processing</option>
+          <option value="SHIPPED">Shipped</option>
+          <option value="DELIVERED">Delivered</option>
+        </select>
+      </div>
+      <div class="modal-footer" style="padding:0;border:none;margin-top:1rem">
+        <button class="btn btn-outline" onclick="closeModal('statusModal')">Cancel</button>
+        <button class="btn btn-primary" id="updateStatusBtn" onclick="submitStatus()">Update</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/utils.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/navbar.js"></script>
+<script>
+  let allAdminOrders = [];
+  let allCats = [];
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    requireAuth();
+    requireAdmin();
+    await Promise.all([loadDashboard(), loadCatsForSelect()]);
+  });
+
+  // ── Section nav ─────────────────────────────────────────────
+  function showSection(name, el) {
+    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById(`section-${name}`).classList.add('active');
+    el.classList.add('active');
+    const loaders = { dashboard: loadDashboard, products: loadProducts, categories: loadCategories, orders: loadOrders, users: loadUsers };
+    if (loaders[name]) loaders[name]();
+  }
+
+  // ── Dashboard ────────────────────────────────────────────────
+  async function loadDashboard() {
+    try {
+      const [sRes, oRes] = await Promise.all([OrderAPI.getStats(), OrderAPI.getAll()]);
+      const s = sRes.data;
+      document.getElementById('statsGrid').innerHTML = [
+        ['Total Orders', s.total || 0],
+        ['Pending',      s.pending || 0],
+        ['Processing',   s.processing || 0],
+        ['Shipped',      s.shipped || 0],
+        ['Delivered',    s.delivered || 0],
+        ['Cancelled',    s.cancelled || 0]
+      ].map(([label, num]) => `
+        <div class="stat-card">
+          <div class="stat-number">${num}</div>
+          <div class="stat-label">${label}</div>
+        </div>`).join('');
+
+      const recent = (oRes.data || []).slice(0, 6);
+      document.getElementById('dashRecentOrders').innerHTML = `
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+              ${recent.map(o => `
+                <tr>
+                  <td><strong>#${o.id}</strong></td>
+                  <td>${o.user?.firstName || ''} ${o.user?.lastName || ''}</td>
+                  <td>${formatPrice(o.totalAmount)}</td>
+                  <td>${statusBadge(o.status)}</td>
+                  <td style="color:var(--text-400)">${formatDate(o.placedAt)}</td>
+                </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text-400);padding:1.5rem">No orders yet</td></tr>'}
+            </tbody>
+          </table>
+        </div>`;
+    } catch (err) { console.error('[Admin] Dashboard:', err); }
+  }
+
+  // ── Products ─────────────────────────────────────────────────
+  async function loadProducts() {
+    const tb = document.getElementById('productsTbody');
+    try {
+      const res = await ProductAPI.getAllAdmin();
+      const ps  = res.data || [];
+      tb.innerHTML = ps.map(p => `
+        <tr>
+          <td><img src="${productImage(p.imageUrl, p.name)}" style="width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--border)" onerror="this.src='https://placehold.co/44/e2e8f0/94a3b8'" /></td>
+          <td><strong style="font-size:0.875rem">${p.name}</strong></td>
+          <td><span class="badge badge-gray">${p.category?.name || '—'}</span></td>
+          <td>${formatPrice(p.price)}</td>
+          <td><span style="font-weight:700;color:${p.quantity <= 5 ? 'var(--danger)' : 'var(--success)'}">${p.quantity}</span></td>
+          <td><span class="badge ${p.isActive ? 'badge-success' : 'badge-danger'}">${p.isActive ? 'Active' : 'Inactive'}</span></td>
+          <td style="display:flex;gap:0.5rem">
+            <button class="btn btn-outline btn-sm" onclick="openProductModal(${p.id})">Edit</button>
+            <button class="btn btn-sm" style="color:var(--danger);border:1.5px solid var(--danger)" onclick="delProduct(${p.id},'${p.name.replace(/'/g,"\\'")}')">Delete</button>
+          </td>
+        </tr>`).join('') || `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-400)">No products</td></tr>`;
+    } catch { showToast('Failed to load products', 'error'); }
+  }
+
+  async function loadCatsForSelect() {
+    try {
+      const res = await CategoryAPI.getAll();
+      allCats   = res.data || [];
+      const sel = document.getElementById('prodCat');
+      allCats.forEach(c => {
+        const o = document.createElement('option');
+        o.value = c.id; o.textContent = c.name;
+        sel.appendChild(o);
+      });
+    } catch {}
+  }
+
+  function openProductModal(id = null) {
+    document.getElementById('productForm').reset();
+    document.getElementById('prodId').value = id || '';
+    document.getElementById('productModalTitle').textContent = id ? 'Edit Product' : 'Add Product';
+    if (id) {
+      ProductAPI.getById(id).then(r => {
+        const p = r.data;
+        document.getElementById('prodName').value  = p.name;
+        document.getElementById('prodPrice').value = p.price;
+        document.getElementById('prodQty').value   = p.quantity;
+        document.getElementById('prodDesc').value  = p.description || '';
+        document.getElementById('prodImg').value   = p.imageUrl || '';
+        document.getElementById('prodCat').value   = p.category?.id || '';
+      });
+    }
+    openModal('productModal');
+  }
+
+  async function saveProduct(e) {
+    e.preventDefault();
+    const btn = document.getElementById('saveProdBtn');
+    const id  = document.getElementById('prodId').value;
+    const data = {
+      name:        document.getElementById('prodName').value.trim(),
+      price:       parseFloat(document.getElementById('prodPrice').value),
+      quantity:    parseInt(document.getElementById('prodQty').value),
+      description: document.getElementById('prodDesc').value.trim(),
+      imageUrl:    document.getElementById('prodImg').value.trim(),
+      categoryId:  parseInt(document.getElementById('prodCat').value)
+    };
+    setLoading(btn, true, 'Saving...');
+    try {
+      id ? await ProductAPI.update(id, data) : await ProductAPI.add(data);
+      showToast(id ? 'Product updated' : 'Product added', 'success');
+      closeModal('productModal');
+      await loadProducts();
+    } catch (ex) { showToast(ex.message, 'error'); setLoading(btn, false); }
+  }
+
+  async function delProduct(id, name) {
+    if (!confirm(`Remove "${name}" from the store?`)) return;
+    try { await ProductAPI.delete(id); showToast('Product removed', 'success'); await loadProducts(); }
+    catch (ex) { showToast(ex.message, 'error'); }
+  }
+
+  // ── Categories ───────────────────────────────────────────────
+  async function loadCategories() {
+    const tb = document.getElementById('catsTbody');
+    try {
+      const res = await CategoryAPI.getAll();
+      allCats   = res.data || [];
+      tb.innerHTML = allCats.map(c => `
+        <tr>
+          <td><strong>${c.name}</strong></td>
+          <td style="color:var(--text-500)">${c.description || '—'}</td>
+          <td style="display:flex;gap:0.5rem">
+            <button class="btn btn-outline btn-sm" onclick="openCatModal(${c.id})">Edit</button>
+            <button class="btn btn-sm" style="color:var(--danger);border:1.5px solid var(--danger)" onclick="delCat(${c.id},'${c.name.replace(/'/g,"\\'")}')">Delete</button>
+          </td>
+        </tr>`).join('') || `<tr><td colspan="3" style="text-align:center;padding:2rem;color:var(--text-400)">No categories</td></tr>`;
+    } catch { showToast('Failed to load categories', 'error'); }
+  }
+
+  function openCatModal(id = null) {
+    document.getElementById('catForm').reset();
+    document.getElementById('catId').value = id || '';
+    document.getElementById('catModalTitle').textContent = id ? 'Edit Category' : 'Add Category';
+    if (id) {
+      const c = allCats.find(x => x.id === id);
+      if (c) {
+        document.getElementById('catName').value = c.name;
+        document.getElementById('catDesc').value = c.description || '';
+        document.getElementById('catIcon').value = c.icon || '';
+      }
+    }
+    openModal('catModal');
+  }
+
+  async function saveCat(e) {
+    e.preventDefault();
+    const btn = document.getElementById('saveCatBtn');
+    const id  = document.getElementById('catId').value;
+    const data = {
+      name:        document.getElementById('catName').value.trim(),
+      description: document.getElementById('catDesc').value.trim(),
+      icon:        document.getElementById('catIcon').value.trim()
+    };
+    setLoading(btn, true, 'Saving...');
+    try {
+      id ? await CategoryAPI.update(id, data) : await CategoryAPI.add(data);
+      showToast(id ? 'Category updated' : 'Category added', 'success');
+      closeModal('catModal');
+      await loadCategories();
+      // Refresh product category dropdown
+      document.getElementById('prodCat').innerHTML = '<option value="">Select category</option>';
+      allCats = [];
+      await loadCatsForSelect();
+    } catch (ex) { showToast(ex.message, 'error'); setLoading(btn, false); }
+  }
+
+  async function delCat(id, name) {
+    if (!confirm(`Delete category "${name}"?`)) return;
+    try { await CategoryAPI.delete(id); showToast('Category deleted', 'success'); await loadCategories(); }
+    catch (ex) { showToast(ex.message, 'error'); }
+  }
+
+  // ── Orders ───────────────────────────────────────────────────
+  async function loadOrders() {
+    const tb = document.getElementById('ordersTbody');
+    try {
+      const res      = await OrderAPI.getAll();
+      allAdminOrders = res.data || [];
+      renderAdminOrders(allAdminOrders);
+    } catch { showToast('Failed to load orders', 'error'); }
+  }
+
+  function filterAdminOrders(status, btn) {
+    document.querySelectorAll('#section-orders .btn').forEach(b =>
+      b.className = b === btn ? 'btn btn-primary btn-sm' : 'btn btn-outline btn-sm');
+    renderAdminOrders(status === 'ALL' ? allAdminOrders : allAdminOrders.filter(o => o.status === status));
+  }
+
+  function renderAdminOrders(orders) {
+    const tb = document.getElementById('ordersTbody');
+    tb.innerHTML = orders.map(o => `
+      <tr>
+        <td><strong>#${o.id}</strong></td>
+        <td>${o.user?.firstName || ''} ${o.user?.lastName || ''}<br/><span style="font-size:0.78rem;color:var(--text-400)">${o.user?.email || ''}</span></td>
+        <td>${formatPrice(o.totalAmount)}</td>
+        <td style="font-size:0.82rem">${o.paymentMethod || '—'}</td>
+        <td>${statusBadge(o.status)}</td>
+        <td style="font-size:0.78rem;color:var(--text-400)">${formatDate(o.placedAt)}</td>
+        <td style="display:flex;gap:0.4rem;flex-wrap:wrap">
+          ${o.status !== 'DELIVERED' && o.status !== 'CANCELLED' ? `
+            <button class="btn btn-outline btn-sm" onclick="openStatus(${o.id},'${o.status}')">Update</button>
+            <button class="btn btn-sm" style="color:var(--danger);border:1.5px solid var(--danger)" onclick="adminCancel(${o.id})">Cancel</button>
+          ` : ''}
+        </td>
+      </tr>`).join('') || `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-400)">No orders</td></tr>`;
+  }
+
+  function openStatus(id, current) {
+    document.getElementById('statusOrderId').value = id;
+    document.getElementById('statusSelect').value  = current;
+    openModal('statusModal');
+  }
+
+  async function submitStatus() {
+    const btn    = document.getElementById('updateStatusBtn');
+    const id     = document.getElementById('statusOrderId').value;
+    const status = document.getElementById('statusSelect').value;
+    setLoading(btn, true, 'Updating...');
+    try {
+      await OrderAPI.updateStatus(id, status);
+      showToast(`Order #${id} → ${status}`, 'success');
+      closeModal('statusModal');
+      await loadOrders();
+    } catch (ex) { showToast(ex.message, 'error'); setLoading(btn, false); }
+  }
+
+  async function adminCancel(id) {
+    const reason = prompt(`Cancel Order #${id}? Enter reason:`);
+    if (!reason) return;
+    try { await OrderAPI.cancel(id, reason, true); showToast('Order cancelled', 'success'); await loadOrders(); }
+    catch (ex) { showToast(ex.message, 'error'); }
+  }
+
+  // ── Users ────────────────────────────────────────────────────
+  async function loadUsers() {
+    const tb = document.getElementById('usersTbody');
+    try {
+      const res = await UserAPI.getAll();
+      const us  = res.data || [];
+      tb.innerHTML = us.map(u => `
+        <tr>
+          <td>${u.id}</td>
+          <td><strong>${u.firstName} ${u.lastName}</strong></td>
+          <td style="font-size:0.82rem">${u.email}</td>
+          <td><span class="badge ${u.role === 'ADMIN' ? 'badge-primary' : 'badge-info'}">${u.role}</span></td>
+          <td><span class="badge ${u.isActive ? 'badge-success' : 'badge-danger'}">${u.isActive ? 'Active' : 'Inactive'}</span></td>
+          <td style="font-size:0.78rem;color:var(--text-400)">${formatDate(u.createdAt)}</td>
+          <td>
+            <button class="btn btn-sm ${u.isActive ? '' : 'btn-outline'}"
+              style="${u.isActive ? 'color:var(--danger);border:1.5px solid var(--danger)' : ''}"
+              onclick="toggleUser(${u.id},'${u.firstName} ${u.lastName}')">
+              ${u.isActive ? 'Deactivate' : 'Activate'}
+            </button>
+          </td>
+        </tr>`).join('') || `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-400)">No users</td></tr>`;
+    } catch { showToast('Failed to load users', 'error'); }
+  }
+
+  async function toggleUser(id, name) {
+    if (!confirm(`Toggle account status for ${name}?`)) return;
+    try { await UserAPI.toggleStatus(id); showToast('Account status updated', 'success'); await loadUsers(); }
+    catch (ex) { showToast(ex.message, 'error'); }
+  }
+
+  // Expose productImage for admin page
+  function productImage(url, name) {
+    if (url && url.startsWith('http')) return url;
+    return `https://placehold.co/44x44/e2e8f0/94a3b8?text=IMG`;
+  }
+</script>
+
+</body>
+</html>
